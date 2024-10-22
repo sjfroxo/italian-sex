@@ -1,16 +1,25 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\MainPageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('welcome');
-Route::view('/register', 'auth.register')->name('register');
-Route::view('/login', 'auth.login')->name('login');
+Route::get('/', [MainPageController::class, 'index'])->name('welcome');
+
+Route::middleware(['auth', 'can:accessAdminPanel'])->group(function () {
+    Route::get('/admin', [IndexController::class, 'index'])->name('main.index');
+});
+
+Route::middleware('web')->group(function () {
+    Route::view('/register', 'auth.register')->name('register');
+    Route::view('/login', 'auth.login')->name('login');
+});
+
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');
-Route::get('/admin', [IndexController::class, 'index'])->name('main.index');
 
 Route::prefix('category')->group(function () {
     Route::get('/', [CategoryController::class, 'index'])->name('category.index');
@@ -32,4 +41,8 @@ Route::prefix('product')->group(function () {
     Route::patch('/{slug}', [ProductController::class, 'update'])->name('product.update');
 });
 
-
+Route::middleware(['auth'])->prefix('chat')->group(function () {
+    Route::get('/', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/{id}/messages', [ChatController::class, 'getMessages']);
+    Route::post('/send', [ChatController::class, 'sendMessage']);
+});
