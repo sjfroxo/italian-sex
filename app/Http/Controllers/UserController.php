@@ -22,13 +22,14 @@ class UserController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        $user = User::query()->create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+//        $user = User::query()->create([
+//            'name' => $request->name,
+//            'email' => $request->email,
+//            'password' => Hash::make($request->password),
+//        ]);
 
-        return response()->json(['message' => 'User created successfully', 'user' => $user], 201);
+        $request->session()->regenerate();
+        return redirect()->intended('/');
     }
     public function loginUser(Request $request)
     {
@@ -44,9 +45,8 @@ class UserController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->filled('remember')    )) {
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
-
             return redirect()->intended('/');
         }
 
