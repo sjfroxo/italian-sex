@@ -25,7 +25,8 @@
 
                 <label for="category_id">category_id:</label>
                 <select name="category_id" id="category_id">
-                    @foreach($categories as $category)
+                    @inject('categories', 'App\Models\Category')
+                    @foreach($categories::all() as $category)
                         <option
                             value="{{ $category->id }}"
                             {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
